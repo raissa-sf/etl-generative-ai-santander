@@ -1,0 +1,18 @@
+{
+  "id": 2,
+  "name": "Ana Oliveira",
+  "account": {
+    "id": 2,
+    "number": "00002-2",
+    "agency": "0001",
+    "balance": 0.0,
+    "limit": 2000.0
+  },
+  "card": {
+    "id": 2,
+    "number": "**** **** **** 1232",
+    "limit": 3500.0
+  },
+  "features": [],
+  "news": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": 5,
+  "name": "Pedro Almeida",
+  "account": {
+    "id": 5,
+    "number": "00005-5",
+    "agency": "0001",
+    "balance": 0.0,
+    "limit": 300.0
+  },
+  "card": {
+    "id": 5,
+    "number": "**** **** **** 1235",
+    "limit": 900.0
+  },
+  "features": [],
+  "news": []
+}

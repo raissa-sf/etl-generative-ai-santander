@@ -1,0 +1,18 @@
+{
+  "id": 3,
+  "name": "Carlos Santos",
+  "account": {
+    "id": 3,
+    "number": "00003-3",
+    "agency": "0001",
+    "balance": 0.0,
+    "limit": 8700.0
+  },
+  "card": {
+    "id": 3,
+    "number": "**** **** **** 1233",
+    "limit": 3900.0
+  },
+  "features": [],
+  "news": []
+}

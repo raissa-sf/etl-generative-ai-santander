@@ -1,0 +1,18 @@
+{
+  "id": 4,
+  "name": "Maria Costa",
+  "account": {
+    "id": 4,
+    "number": "00004-4",
+    "agency": "0001",
+    "balance": 0.0,
+    "limit": 9140.0
+  },
+  "card": {
+    "id": 4,
+    "number": "**** **** **** 1234",
+    "limit": 4000.0
+  },
+  "features": [],
+  "news": []
+}
