@@ -1,32 +1,20 @@
-import pandas as pd
 import json
-from pathlib import Path
+import pandas as pd
+from config.config import RAW_DATA, MOCK_USERS_DIR
 
 
-def extract_users(csv_path: str, mock_dir: str) -> list:
+def extract_users():
     """
-    Extrai dados de usuários a partir de arquivos JSON mockados,
-    simulando a resposta da API original.
-
-    Args:
-        csv_path (str): Caminho do CSV com a coluna 'user_id'
-        mock_dir (str): Diretório onde estão os JSONs mockados
-
-    Returns:
-        list: Lista de dicionários com os dados brutos dos usuários
+    Extract users using CSV and mocked JSON files.
     """
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(RAW_DATA)
     user_ids = df["UserID"].tolist()
 
     users = []
 
     for user_id in user_ids:
-        file_path = Path(mock_dir) / f"user_{user_id}.json"
-
-        if file_path.exists():
-            with open(file_path, "r", encoding="utf-8") as file:
-                users.append(json.load(file))
-        else:
-            print(f"[WARN] Mock do usuário {user_id} não encontrado.")
+        file_path = f"{MOCK_USERS_DIR}/user_{user_id}.json"
+        with open(file_path, "r", encoding="utf-8") as f:
+            users.append(json.load(f))
 
     return users
