@@ -1,39 +1,39 @@
-import json
-import random
 import os
+import random
 from config.config import TEMPLATES_FILE, MESSAGE_ID_FILE
+from .utils import load_json, save_json
+
 
 def generate_marketing_news(users: list, template_path=TEMPLATES_FILE, id_file=MESSAGE_ID_FILE) -> list:
     """
     Generates personalized marketing messages for each user,
-    adding new messages and incrementing message ids globally.
+    adding new messages and incrementing message IDs globally.
 
     Args:
         users (list): List of user dictionaries with user data
         template_path (str): Path to JSON file with message templates
-        id_file (str): Path to JSON file storing last used message id
+        id_file (str): Path to JSON file storing last used message ID
 
     Returns:
         list: Users list with new 'news' messages appended
     """
-    # Load message templates
-    with open(template_path, "r", encoding="utf-8") as f:
-        templates = json.load(f)
 
-    # Shuffle templates
+    # Load message templates
+    templates = load_json(template_path)
+    if not templates:
+        raise ValueError(f"No templates found in {template_path}")
+
+    # Shuffle templates to avoid always sending the same order
     random.shuffle(templates)
 
-    # Load last used message id
-    if os.path.exists(id_file):
-        with open(id_file, "r", encoding="utf-8") as f:
-            last_id = json.load(f).get("last_id", 0)
-    else:
-        last_id = 0
+    # Load last used message ID
+    last_id_data = load_json(id_file)
+    last_id = last_id_data.get("last_id", 0)
 
-    # Assign messages
+    # Assign messages to users
     for user, template in zip(users, templates):
         name = user.get("name", "Customer")
-        last_id += 1  # increment global id
+        last_id += 1  # Increment global ID
         message_text = template.format(name=name)
 
         message = {
@@ -48,8 +48,6 @@ def generate_marketing_news(users: list, template_path=TEMPLATES_FILE, id_file=M
         user["news"].append(message)
 
     # Save updated last_id
-    os.makedirs(os.path.dirname(id_file), exist_ok=True)
-    with open(id_file, "w", encoding="utf-8") as f:
-        json.dump({"last_id": last_id}, f)
+    save_json(id_file, {"last_id": last_id})
 
     return users
