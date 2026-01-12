@@ -1,41 +1,55 @@
 import json
 import random
+import os
+from config.config import TEMPLATES_FILE, MESSAGE_ID_FILE
 
-def generate_marketing_news(users: list, template_path="data/templates/messages.json") -> list:
+def generate_marketing_news(users: list, template_path=TEMPLATES_FILE, id_file=MESSAGE_ID_FILE) -> list:
     """
     Generates personalized marketing messages for each user,
-    ensuring each user receives a unique message.
+    adding new messages and incrementing message ids globally.
 
     Args:
-        users (list): List of dictionaries with user data
-        template_path (str): Path to the JSON file with message templates
+        users (list): List of user dictionaries with user data
+        template_path (str): Path to JSON file with message templates
+        id_file (str): Path to JSON file storing last used message id
 
     Returns:
-        list: Same list of users, but with the 'news' key filled
+        list: Users list with new 'news' messages appended
     """
-    # Load templates from JSON file
+    # Load message templates
     with open(template_path, "r", encoding="utf-8") as f:
         templates = json.load(f)
 
-    # Ensure there are enough templates for all users
-    if len(templates) < len(users):
-        raise ValueError("Not enough templates for all users")
-
-    # Shuffle templates to assign randomly
+    # Shuffle templates
     random.shuffle(templates)
 
-    # Assign one unique message per user
-    for idx, (user, template) in enumerate(zip(users, templates), start=1):
+    # Load last used message id
+    if os.path.exists(id_file):
+        with open(id_file, "r", encoding="utf-8") as f:
+            last_id = json.load(f).get("last_id", 0)
+    else:
+        last_id = 0
+
+    # Assign messages
+    for user, template in zip(users, templates):
         name = user.get("name", "Customer")
+        last_id += 1  # increment global id
         message_text = template.format(name=name)
 
         message = {
-            "id": idx,  # unique message id
+            "id": last_id,
             "icon": "https://digitalinnovationone.github.io/santander-dev-week-2023-api/icons/credit.svg",
             "description": message_text
         }
 
-        # Add message to the user's 'news' list
-        user["news"] = [message]
+        # Append new message to user's existing news
+        if "news" not in user:
+            user["news"] = []
+        user["news"].append(message)
+
+    # Save updated last_id
+    os.makedirs(os.path.dirname(id_file), exist_ok=True)
+    with open(id_file, "w", encoding="utf-8") as f:
+        json.dump({"last_id": last_id}, f)
 
     return users
