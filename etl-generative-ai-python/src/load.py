@@ -1,6 +1,6 @@
-import json
 import os
 from config.config import PROCESSED_DIR
+from .utils import load_json, save_json
 
 
 def load_users(users: list, output_dir: str = PROCESSED_DIR):
@@ -8,9 +8,6 @@ def load_users(users: list, output_dir: str = PROCESSED_DIR):
     Saves each user with personalized news to a JSON file,
     appending new messages without overwriting existing ones
     and ensuring the JSON field order matches the Santander API.
-    
-    Order:
-    id -> name -> account -> card -> features -> news
     """
     os.makedirs(output_dir, exist_ok=True)
 
@@ -18,14 +15,9 @@ def load_users(users: list, output_dir: str = PROCESSED_DIR):
         user_id = user.get("id")
         output_path = os.path.join(output_dir, f"user_{user_id}.json")
 
-        # Load existing user data if file already exists
-        if os.path.exists(output_path):
-            with open(output_path, "r", encoding="utf-8") as file:
-                existing_user_data = json.load(file)
-        else:
-            existing_user_data = {"news": []}
+        existing_user_data = load_json(output_path) or {"news": []}
 
-        # Merge existing news with new news (avoid duplicate IDs)
+        # Merge news without duplicates
         existing_news_ids = {
             news_item["id"]
             for news_item in existing_user_data.get("news", [])
@@ -35,12 +27,12 @@ def load_users(users: list, output_dir: str = PROCESSED_DIR):
             if new_message["id"] not in existing_news_ids:
                 existing_user_data.setdefault("news", []).append(new_message)
 
-        # Update user attributes except 'news'
-        for field_name, field_value in user.items():
-            if field_name != "news":
-                existing_user_data[field_name] = field_value
+        # Update other fields
+        for field, value in user.items():
+            if field != "news":
+                existing_user_data[field] = value
 
-        # Explicitly control JSON field order
+        # Explicit order
         ordered_user_data = {
             "id": existing_user_data.get("id"),
             "name": existing_user_data.get("name"),
@@ -50,8 +42,6 @@ def load_users(users: list, output_dir: str = PROCESSED_DIR):
             "news": existing_user_data.get("news", [])
         }
 
-        # Save ordered user data
-        with open(output_path, "w", encoding="utf-8") as file:
-            json.dump(ordered_user_data, file, indent=2, ensure_ascii=False)
+        save_json(output_path, ordered_user_data)
 
     print(f"{len(users)} users successfully updated in '{output_dir}'")
